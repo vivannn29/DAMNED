@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Study Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #121212;
+      color: #eee;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    input, table {
+      background-color: #1f1f1f;
+      color: #eee;
+      border-color: #555;
+    }
+    th {
+      background-color: #357ABD;
+      color: white;
+    }
+    button {
+      background-color: #299329;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #357a38;
+    }
+    table, th, td {
+      border: 1px solid #555;
+    }
+    .checkbox-cell {
+      text-align: center;
+    }
+    tbody {
+      cursor: move;
+    }
+  </style>
+</head>
+<body class="p-6">
+  <div class="flex justify-center items-center mb-6">
+    <h1 class="text-3xl font-bold text-center">📚 Study Tracker</h1>
+  </div>
+
+  <div class="mt-6 max-w-6xl mx-auto p-6 rounded-lg shadow" style="background-color:#222;">
+    <h2 class="text-xl font-semibold mb-4 text-center">Subject Progress</h2>
+
+    <div class="flex justify-center space-x-4 mb-6">
+      <button onclick="switchSubject('physics')" class="px-4 py-2 rounded">Physics</button>
+      <button onclick="switchSubject('chemistry')" class="px-4 py-2 rounded">Chemistry</button>
+      <button onclick="switchSubject('maths')" class="px-4 py-2 rounded">Maths</button>
+    </div>
+
+    <!-- Tables for each subject -->
+    <div id="physics" class="subject-table">
+      <h3 class="text-lg font-semibold mb-2">Physics Topics</h3>
+      <table class="w-full table-auto">
+        <thead>
+          <tr>
+            <th class="p-2">#</th>
+            <th class="p-2">Topic</th>
+            <th class="p-2">DDP</th>
+            <th class="p-2">Notes</th>
+            <th class="p-2">Lectures</th>
+            <th class="p-2">Done</th>
+          </tr>
+        </thead>
+        <tbody id="physics-body"></tbody>
+      </table>
+      <button onclick="addRow('physics-body', 'physics')" class="mt-3 px-4 py-2 rounded">+ Add Topic</button>
+    </div>
+
+    <div id="chemistry" class="subject-table hidden">
+      <h3 class="text-lg font-semibold mb-2">Chemistry Topics</h3>
+      <table class="w-full table-auto">
+        <thead>
+          <tr>
+            <th class="p-2">#</th>
+            <th class="p-2">Topic</th>
+            <th class="p-2">DDP</th>
+            <th class="p-2">Notes</th>
+            <th class="p-2">Lectures</th>
+            <th class="p-2">Done</th>
+          </tr>
+        </thead>
+        <tbody id="chemistry-body"></tbody>
+      </table>
+      <button onclick="addRow('chemistry-body', 'chemistry')" class="mt-3 px-4 py-2 rounded">+ Add Topic</button>
+    </div>
+
+    <div id="maths" class="subject-table hidden">
+      <h3 class="text-lg font-semibold mb-2">Maths Topics</h3>
+      <table class="w-full table-auto">
+        <thead>
+          <tr>
+            <th class="p-2">#</th>
+            <th class="p-2">Topic</th>
+            <th class="p-2">DDP</th>
+            <th class="p-2">Notes</th>
+            <th class="p-2">Lectures</th>
+            <th class="p-2">Done</th>
+          </tr>
+        </thead>
+        <tbody id="maths-body"></tbody>
+      </table>
+      <button onclick="addRow('maths-body', 'maths')" class="mt-3 px-4 py-2 rounded">+ Add Topic</button>
+    </div>
+  </div>
+
+  <script>
+    function switchSubject(subject) {
+      document.querySelectorAll('.subject-table').forEach(div => div.classList.add('hidden'));
+      document.getElementById(subject).classList.remove('hidden');
+    }
+
+    function createCheckbox(checked, onChange) {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = checked;
+      checkbox.onchange = onChange;
+      return checkbox;
+    }
+
+    function addRow(tableId, subject) {
+      const tbody = document.getElementById(tableId);
+      const row = document.createElement("tr");
+      const index = tbody.rows.length + 1;
+
+      const indexTd = document.createElement("td");
+      indexTd.className = "p-2 text-center";
+      indexTd.textContent = index;
+      row.appendChild(indexTd);
+
+      const topicTd = document.createElement("td");
+      topicTd.className = "p-2";
+      const topicInput = document.createElement("input");
+      topicInput.type = "text";
+      topicInput.className = "w-full p-1 rounded";
+      topicInput.oninput = saveData;
+      topicTd.appendChild(topicInput);
+      row.appendChild(topicTd);
+
+      ["ddp", "notes", "lectures"].forEach(() => {
+        const td = document.createElement("td");
+        td.className = "checkbox-cell p-2";
+        td.appendChild(createCheckbox(false, saveData));
+        row.appendChild(td);
+      });
+
+      const doneTd = document.createElement("td");
+      doneTd.className = "checkbox-cell p-2";
+      doneTd.appendChild(createCheckbox(false, saveData));
+      row.appendChild(doneTd);
+
+      tbody.appendChild(row);
+      makeRowsSortable(tbody);
+      saveData();
+    }
+
+    function saveData() {
+      const subjects = ["physics", "chemistry", "maths"];
+      const allData = {};
+
+      subjects.forEach(subj => {
+        const rows = document.querySelectorAll(`#${subj}-body tr`);
+        allData[subj] = Array.from(rows).map(row => {
+          const cells = row.querySelectorAll("td");
+          return {
+            topic: cells[1].querySelector("input").value,
+            ddp: cells[2].querySelector("input").checked,
+            notes: cells[3].querySelector("input").checked,
+            lectures: cells[4].querySelector("input").checked,
+            done: cells[5].querySelector("input").checked
+          };
+        });
+      });
+
+      localStorage.setItem("studyDataEnhanced", JSON.stringify(allData));
+    }
+
+    function loadData() {
+      const data = JSON.parse(localStorage.getItem("studyDataEnhanced"));
+      if (!data) return;
+
+      Object.keys(data).forEach(subject => {
+        data[subject].forEach((item, index) => {
+          const tbody = document.getElementById(`${subject}-body`);
+          const row = document.createElement("tr");
+
+          const indexTd = document.createElement("td");
+          indexTd.className = "p-2 text-center";
+          indexTd.textContent = index + 1;
+          row.appendChild(indexTd);
+
+          const topicTd = document.createElement("td");
+          topicTd.className = "p-2";
+          const topicInput = document.createElement("input");
+          topicInput.type = "text";
+          topicInput.className = "w-full p-1 rounded";
+          topicInput.value = item.topic;
+          topicInput.oninput = saveData;
+          topicTd.appendChild(topicInput);
+          row.appendChild(topicTd);
+
+          ["ddp", "notes", "lectures", "done"].forEach(key => {
+            const td = document.createElement("td");
+            td.className = "checkbox-cell p-2";
+            td.appendChild(createCheckbox(item[key], saveData));
+            row.appendChild(td);
+          });
+
+          tbody.appendChild(row);
+          makeRowsSortable(tbody);
+        });
+      });
+    }
+
+    function makeRowsSortable(tbody) {
+      let draggingEle;
+      let placeholder;
+      let isDraggingStarted = false;
+
+      const rows = tbody.querySelectorAll('tr');
+      rows.forEach(row => {
+        row.draggable = true;
+
+        row.addEventListener('dragstart', function (e) {
+          draggingEle = row;
+          placeholder = document.createElement('tr');
+          placeholder.classList.add('bg-gray-700');
+          placeholder.style.height = `${row.offsetHeight}px`;
+          row.classList.add('opacity-50');
+        });
+
+        row.addEventListener('dragend', function () {
+          row.classList.remove('opacity-50');
+          placeholder && placeholder.remove();
+          saveData();
+        });
+
+        row.addEventListener('dragover', function (e) {
+          e.preventDefault();
+          const bounding = row.getBoundingClientRect();
+          const offset = bounding.y + bounding.height / 2;
+          const parent = row.parentNode;
+
+          if (e.clientY - offset > 0) {
+            parent.insertBefore(placeholder, row.nextSibling);
+          } else {
+            parent.insertBefore(placeholder, row);
+          }
+        });
+
+        row.addEventListener('drop', function (e) {
+          e.preventDefault();
+          if (placeholder.parentNode) {
+            placeholder.parentNode.replaceChild(draggingEle, placeholder);
+            updateRowNumbers(tbody);
+          }
+        });
+      });
+    }
+
+    function updateRowNumbers(tbody) {
+      Array.from(tbody.rows).forEach((row, idx) => {
+        const indexCell = row.cells[0];
+        if (indexCell) indexCell.textContent = idx + 1;
+      });
+    }
+
+    window.onload = loadData;
+  </script>
+</body>
+</html>
