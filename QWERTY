@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Enhanced Study Tracker</title>
+  <style>
+    :root {
+      --color-primary-light: #4caf50;
+      --color-primary-dark: #357a38;
+      --color-bg-light: #f0f4f8;
+      --color-bg-dark: #121212;
+      --color-text-light: #222;
+      --color-text-dark: #eee;
+      --color-accent-light: #6ecf6e;
+      --color-accent-dark: #299329;
+      --color-error: #d9534f;
+      --transition-speed: 0.3s;
+    }
+
+    body {
+      margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--color-bg-light);
+      color: var(--color-text-light);
+      transition: background var(--transition-speed), color var(--transition-speed);
+    }
+    body.dark {
+      background: var(--color-bg-dark);
+      color: var(--color-text-dark);
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--color-primary-light), var(--color-accent-light));
+      padding: 1rem;
+      color: white;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.8rem;
+      user-select: none;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+    body.dark header {
+      background: linear-gradient(90deg, var(--color-primary-dark), var(--color-accent-dark));
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      background: #3b7a3b;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    body.dark nav {
+      background: #286228;
+    }
+    nav button {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: none;
+      background: transparent;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.25s;
+      border-bottom: 3px solid transparent;
+    }
+    nav button:hover, nav button.active {
+      background: var(--color-accent-light);
+      color: #111;
+      border-bottom: 3px solid var(--color-primary-light);
+    }
+    body.dark nav button:hover, body.dark nav button.active {
+      background: var(--color-accent-dark);
+      color: #eee;
+      border-bottom: 3px solid var(--color-primary-dark);
+    }
+
+    main {
+      max-width: 960px;
+      margin: 1rem auto 2rem;
+      padding: 0 1rem;
+    }
+
+    section {
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+    section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      background: #ddd;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 1rem auto 2rem;
+      width: 100%;
+      max-width: 600px;
+      height: 28px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    }
+    body.dark .progress-container {
+      background: #444;
+      box-shadow: inset 0 1px 3px rgba(255,255,255,0.1);
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #4caf50, #81c784);
+      width: 0;
+      color: white;
+      font-weight: 700;
+      line-height: 28px;
+      text-align: center;
+      transition: width 0.4s ease;
+      user-select: none;
+      box-shadow: 0 0 10px #66bb6a66;
+    }
+    body.dark .progress-bar {
+      background: linear-gradient(90deg, #357a38, #558a44);
+      box-shadow: 0 0 12px #4caf5088;
+    }
+
+    /* Table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    }
+    body.dark table {
+      box-shadow: 0 0 8px rgba(255,255,255,0.15);
+    }
+    th, td {
+      padding: 0.6rem 0.8rem;
+      border: 1px solid #bbb;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    body.dark th, body.dark td {
+      border-color: #555;
+    }
+    th {
+      background: linear-gradient(to bottom, #81c784, #4caf50);
+      color: #fff;
+      font-weight: 700;
+      user-select: none;
+    }
+    body.dark th {
+      background: linear-gradient(to bottom, #558a44, #357a38);
+    }
+
+    /* Form styling */
+    form {
+      max-width: 600px;
+      margin: 1rem auto 2rem;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      transition: background var(--transition-speed), color var(--transition-speed);
+    }
+    body.dark form {
+      background: #222;
+      color: var(--color-text-dark);
+      box-shadow: 0 3px 10px rgba(255,255,255,0.1);
+    }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 10px 12px;
+      margin: 0.5rem 0 1.2rem;
+      border: 1.8px solid #bbb;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+      background: white;
+      color: #333;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+    body.dark input, body.dark textarea, body.dark select {
+      background: #333;
+      border-color: #555;
+      color: var(--color-text-dark);
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--color-primary-light);
+      outline: none;
+      box-shadow: 0 0 6px var(--color-primary-light);
+    }
+    body.dark input:focus, body.dark textarea:focus, body.dark select:focus {
+      border-color: var(--color-primary-dark);
+      box-shadow: 0 0 8px var(--color-primary-dark);
+    }
+    button {
+      background: var(--color-primary-light);
+      border: none;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.3s;
+      user-select: none;
+    }
+    button:hover {
+      background: var(--color-primary-dark);
+    }
+    body.dark button {
+      background: var(--color-primary-dark);
+    }
+    body.dark button:hover {
+      background: var(--color-accent-dark);
+    }
+
+    /* Nav button container for sub-sections inside Dashboard */
+    .subnav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .subnav button {
+      flex: none;
+      width: auto;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9rem;
+      border-radius: 5px;
+    }
+    .subnav button.active {
+      background: var(--color-primary-light);
+      color: #111;
+    }
+    body.dark .subnav button.active {
+      background: var(--color-primary-dark);
+      color: #eee;
+    }
+
+    /* List styling for To-Do */
+    .todo-list {
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      padding: 0;
+      list-style: none;
+    }
+    .todo-list li {
+      background: #e8f5e9;
+      margin: 0.3rem 0;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    body.dark .todo-list li {
+      background: #2e462e;
+      box-shadow: 0 1px 3px rgba(255,255,255,0.1);
+    }
+    .todo-list li.completed {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+    .todo-list button.remove-btn {
+      background: transparent;
+      border: none;
+      color: var(--color-error);
+      font-weight: 700;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0 0.5rem;
+      user-select: none;
+    }
+    .todo-list button.remove-btn:hover {
+      color: #a94442;
+    }
+
+    /* Scroll table */
+    .table-wrapper {
+      max-height: 300px;
+      overflow-y: auto;
+      border-radius: 10px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    }
+    body.dark .table-wrapper {
+      box-shadow: inset 0 0 12px rgba(255,255,255,0.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      th, td {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.5rem;
+      }
+      nav button {
+        font-size: 0.8rem;
+        padding: 0.6rem 0.4rem;
+      }
+      header {
+        font-size: 1.3rem;
+        padding: 0.8rem;
+      }
+      form {
+        padding: 1rem;
+      }
+    }
+
+    /* Small helper text */
+    .small-text {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: -10px;
+      margin-bottom: 12px;
+      text-align: center;
+      user-select: none;
+    }
+    body.dark .small-text {
+      color: #aaa;
+    }
+
+    /* Dark mode toggle */
+    #darkModeToggle {
+      position: fixed;
+      right: 15px;
+      bottom: 15px;
+      background: var(--color-primary-light);
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      font-size: 26px;
+      color: white;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+      transition: background 0.3s;
+      user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #darkModeToggle:hover {
+      background: var(--color-primary-dark);
+    }
+    body.dark #darkModeToggle {
+      background: var(--color-primary-dark);
+    }
+    body.dark #darkModeToggle:hover {
+      background: var(--color-accent-dark);
+    }
+
+  </style>
+</head>
+<body>
+  <header>📚 Progress Tracker</header>
+
+  <nav>
+    <button class="nav-btn active" data-target="dashboard">Dashboard</button>
+    <button class="nav-btn" data-target="calendar">Calendar</button>
+    <button class="nav-btn" data-target="doubtBank">Doubt Bank</button>
+    <button class="nav-btn" data-target="mistakesLog">Mistakes Log</button>
+    <button class="nav-btn" data-target="todoList">To-Do List</button>
+  </nav>
+
+  <main>
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="active">
+      <form id="setupForm" aria-label="Setup study target and due date">
+        <h2>Setup Your Study Plan</h2>
+        <label for="totalHoursInput">Total Study Hours Goal:</label>
+        <input type="number" id="totalHoursInput" min="1" step="1" placeholder="e.g., 500" required />
+        <label for="dueDateInput">Due Date:</label>
+        <input type="date" id="dueDateInput" required />
+        <button type="submit">Save Plan</button>
+      </form>
+
+      <div id="dashboardStats" style="display:none;">
+        <h2>Progress Overview</h2>
+        <div class="progress-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressContainer">
+          <div id="progressBar" class="progress-bar">0%</div>
+        </div>
+        <p><strong>Total Hours:</strong> <span id="totalHoursDisplay"></span></p>
+        <p><strong>Hours Completed:</strong> <span id="hoursDoneDisplay"></span></p>
+        <p><strong>Hours Pending:</strong> <span id="hoursPendingDisplay"></span></p>
+        <p><strong>Due Date:</strong> <span id="dueDateDisplay"></span></p>
+        <p><strong>Days Left:</strong> <span id="daysLeftDisplay"></span></p>
+        <p><strong>Recommended Hours/Day:</strong> <span id="hoursPerDayDisplay"></span></p>
+
+        <button id="addEntryBtn">Add Daily Entry</button>
+
+        <section id="entrySection" style="display:none; margin-top:1.5rem;">
+          <form id="entryForm" aria-label="Add daily study entry">
+            <h3>Add Study Entry</h3>
+            <label for="entryDate">Date:</label>
+            <input type="date" id="entryDate" required />
+            <label for="hoursPlanned">Hours Planned:</label>
+            <input type="number" id="hoursPlanned" min="0" step="0.25" required />
+            <label for="hoursDoneEntry">Hours Done:</label>
+            <input type="number" id="hoursDoneEntry" min="0" step="0.25" required />
+            <label for="topicNotes">Topic / Notes:</label>
+            <textarea id="topicNotes" rows="3" placeholder="What did you study?"></textarea>
+            <div style="display:flex; gap:10px; justify-content: flex-end;">
+              <button type="submit">Save Entry</button>
+              <button type="button" id="cancelEntryBtn" style="background:#d9534f;">Cancel</button>
+            </div>
+          </form>
+        </section>
+
+        <section style="margin-top:2rem;">
+          <h3>Daily Log</h3>
+          <div class="table-wrapper">
+            <table aria-label="Daily study log" id="studyTable" role="grid" tabindex="0">
+              <thead>
+                <tr><th>Date</th><th>Hours Planned</th><th>Hours Done</th><th>Topic / Notes</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- CALENDAR -->
+    <section id="calendar">
+      <h2>Study Calendar</h2>
+      <p class="small-text">Select any day to view planned and completed hours.</p>
+      <div id="calendarContainer"></div>
+    </section>
+
+    <!-- DOUBT BANK -->
+    <section id="doubtBank">
+      <h2>Doubt Bank</h2>
+      <form id="doubtForm" aria-label="Add a doubt">
+        <label for="doubtInput">Enter your doubt/question:</label>
+        <textarea id="doubtInput" rows="3" required></textarea>
+        <button type="submit">Add Doubt</button>
+      </form>
+      <section>
+        <h3>All Doubts</h3>
+        <ul id="doubtList" aria-live="polite" style="list-style:none; padding-left:0;"></ul>
+      </section>
+    </section>
+
+    <!-- MISTAKES LOG -->
+    <section id="mistakesLog">
+      <h2>Mistakes Log</h2>
+      <form id="mistakesForm" aria-label="Add a mistake record">
+        <label for="mistakeInput">Describe your mistake:</label>
+        <textarea id="mistakeInput" rows="3" required></textarea>
+        <button type="submit">Add Mistake</button>
+      </form>
+      <section>
+        <h3>All Mistakes</h3>
+        <ul id="mistakeList" aria-live="polite" style="list-style:none; padding-left:0;"></ul>
+      </section>
+    </section>
+
+    <!-- TO-DO LIST -->
+    <section id="todoList">
+      <h2>To-Do List</h2>
+      <form id="todoForm" aria-label="Add a to-do task" style="max-width: 600px; margin: auto 0 1rem;">
+        <input type="text" id="todoInput" placeholder="Add a task..." required />
+        <button type="submit">Add Task</button>
+      </form>
+      <ul id="todoItems" class="todo-list" aria-live="polite"></ul>
+    </section>
+  </main>
+
+  <button id="darkModeToggle" aria-label="Toggle dark mode">🌙</button>
+
+  <script>
+    (() => {
+      // Elements & vars
+      const navButtons = document.querySelectorAll('.nav-btn');
+      const sections = document.querySelectorAll('main > section');
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      const body = document.body;
+
+      // Show/hide sections on nav click
+      navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          navButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const target = btn.dataset.target;
+          sections.forEach(s => s.classList.toggle('active', s.id === target));
+          if (target === 'dashboard') {
+            loadDashboard();
+          } else if (target === 'calendar') {
+            renderCalendar();
+          } else if (target === 'doubtBank') {
+            renderDoubtList();
+          } else if (target === 'mistakesLog') {
+            renderMistakesList();
+          } else if (target === 'todoList') {
+            renderTodoList();
+          }
+        });
+      });
+
+      // DARK MODE
+      // Load dark mode state from localStorage
+      if(localStorage.getItem('darkMode') === 'true'){
+        body.classList.add('dark');
+        darkModeToggle.textContent = '☀️';
+      }
+      darkModeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark');
+        const isDark = body.classList.contains('dark');
+        localStorage.setItem('darkMode', isDark);
+        darkModeToggle.textContent = isDark ? '☀️' : '🌙';
+      });
+
+      // DASHBOARD - Setup and study entries
+      const setupForm = document.getElementById('setupForm');
+      const totalHoursInput = document.getElementById('totalHoursInput');
+      const dueDateInput = document.getElementById('dueDateInput');
+      const dashboardStats = document.getElementById('dashboardStats');
+      const totalHoursDisplay = document.getElementById('totalHoursDisplay');
+      const hoursDoneDisplay = document.getElementById('hoursDoneDisplay');
+      const hoursPendingDisplay = document.getElementById('hoursPendingDisplay');
+      const dueDateDisplay = document.getElementById('dueDateDisplay');
+      const daysLeftDisplay = document.getElementById('daysLeftDisplay');
+      const hoursPerDayDisplay = document.getElementById('hoursPerDayDisplay');
+      const progressBar = document.getElementById('progressBar');
+      const progressContainer = document.getElementById('progressContainer');
+      const addEntryBtn = document.getElementById('addEntryBtn');
+      const entrySection = document.getElementById('entrySection');
+      const entryForm = document.getElementById('entryForm');
+      const cancelEntryBtn = document.getElementById('cancelEntryBtn');
+      const studyTableBody = document.querySelector('#studyTable tbody');
+      const entryDateInput = document.getElementById('entryDate');
+      const hoursPlannedInput = document.getElementById('hoursPlanned');
+      const hoursDoneInput = document.getElementById('hoursDoneEntry');
+      const topicNotesInput = document.getElementById('topicNotes');
+
+      // Storage keys
+      const STORAGE_KEYS = {
+        PLAN: 'studyPlan',
+        ENTRIES: 'studyEntries',
+        DOUBTS: 'doubtBank',
+        MISTAKES: 'mistakesLog',
+        TODO: 'todoList'
+      };
+
+      // Load plan from localStorage or show form
+      function loadDashboard(){
+        const plan = JSON.parse(localStorage.getItem(STORAGE_KEYS.PLAN));
+        if(plan && plan.totalHours && plan.dueDate){
+          setupForm.style.display = 'none';
+          dashboardStats.style.display = 'block';
+          totalHoursDisplay.textContent = plan.totalHours;
+          dueDateDisplay.textContent = new Date(plan.dueDate).toLocaleDateString();
+          updateDashboard();
+        } else {
+          setupForm.style.display = 'block';
+          dashboardStats.style.display = 'none';
+        }
+      }
+
+      setupForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const total = parseFloat(totalHoursInput.value);
+        const due = dueDateInput.value;
+        if(total > 0 && due){
+          localStorage.setItem(STORAGE_KEYS.PLAN, JSON.stringify({
+            totalHours: total,
+            dueDate: due
+          }));
+          localStorage.setItem(STORAGE_KEYS.ENTRIES, JSON.stringify([])); // reset entries on new plan
+          loadDashboard();
+        }
+      });
+
+      // Update dashboard stats
+      function updateDashboard(){
+        const plan = JSON.parse(localStorage.getItem(STORAGE_KEYS.PLAN));
+        const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.ENTRIES)) || [];
+        const today = new Date();
+        const due = new Date(plan.dueDate);
+        // Calculate done hours sum
+        const doneHours = entries.reduce((acc, cur) => acc + (parseFloat(cur.hoursDone) || 0), 0);
+        const pendingHours = Math.max(0, plan.totalHours - doneHours);
+
+        const diffTime = due.getTime() - today.getTime();
+        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        const recommendedPerDay = daysLeft > 0 ? (pendingHours / daysLeft).toFixed(2) : pendingHours.toFixed(2);
+
+        // Update UI
+        hoursDoneDisplay.textContent = doneHours.toFixed(2);
+        hoursPendingDisplay.textContent = pendingHours.toFixed(2);
+        daysLeftDisplay.textContent = daysLeft > 0 ? daysLeft : 0;
+        hoursPerDayDisplay.textContent = recommendedPerDay;
+
+        // Progress bar
+        const progressPercent = Math.min(100, (doneHours / plan.totalHours) * 100);
+        progressBar.style.width = progressPercent + '%';
+        progressBar.textContent = progressPercent.toFixed(1) + '%';
+
+        progressContainer.setAttribute('aria-valuenow', progressPercent.toFixed(1));
+
+        // Render table rows
+        renderStudyEntries(entries);
+      }
+
+      function renderStudyEntries(entries){
+        studyTableBody.innerHTML = '';
+        entries.sort((a,b) => new Date(b.date) - new Date(a.date));
+        entries.forEach(entry => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${new Date(entry.date).toLocaleDateString()}</td>
+            <td>${entry.hoursPlanned}</td>
+            <td>${entry.hoursDone}</td>
+            <td>${entry.topic || ''}</td>
+          `;
+          studyTableBody.appendChild(tr);
+        });
+      }
+
+      addEntryBtn.addEventListener('click', () => {
+        entrySection.style.display = 'block';
+        // default entryDate to today or empty
+        entryDateInput.value = new Date().toISOString().slice(0,10);
+      });
+
+      cancelEntryBtn.addEventListener('click', () => {
+        entrySection.style.display = 'none';
+        entryForm.reset();
+      });
+
+      entryForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const date = entryDateInput.value;
+        const hoursPlanned = parseFloat(hoursPlannedInput.value);
+        const hoursDone = parseFloat(hoursDoneInput.value);
+        const topic = topicNotesInput.value.trim();
+
+        if(!date || isNaN(hoursPlanned) || isNaN(hoursDone)){
+          alert('Please fill all required fields correctly.');
+          return;
+        }
+
+        const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.ENTRIES)) || [];
+
+        // Check if entry for date exists, if yes update it, else add new
+        const index = entries.findIndex(en => en.date === date);
+        if(index !== -1){
+          entries[index] = { date, hoursPlanned, hoursDone, topic };
+        } else {
+          entries.push({ date, hoursPlanned, hoursDone, topic });
+        }
+
+        localStorage.setItem(STORAGE_KEYS.ENTRIES, JSON.stringify(entries));
+        entryForm.reset();
+        entrySection.style.display = 'none';
+        updateDashboard();
+      });
+
+      // CALENDAR SECTION
+      const calendarContainer = document.getElementById('calendarContainer');
+
+      function renderCalendar(){
+        calendarContainer.innerHTML = '';
+        const plan = JSON.parse(localStorage.getItem(STORAGE_KEYS.PLAN));
+        if(!plan || !plan.dueDate){
+          calendarContainer.textContent = 'Please setup your study plan in Dashboard first.';
+          return;
+        }
+        const entries = JSON.parse(localStorage.getItem(STORAGE_KEYS.ENTRIES)) || [];
+
+        const today = new Date();
+        const due = new Date(plan.dueDate);
+
+        // Calculate days between today and due date (or from plan start)
+        const start = new Date();
+        start.setHours(0,0,0,0);
+        due.setHours(0,0,0,0);
+
+        // For better view, let's show full months between start and due
+        let months = [];
+        let dateIter = new Date(start.getFullYear(), start.getMonth(), 1);
+        while(dateIter <= due){
+          months.push(new Date(dateIter));
+          dateIter.setMonth(dateIter.getMonth()+1);
+        }
+
+        months.forEach(monthStart => {
+          const monthName = monthStart.toLocaleString('default', { month: 'long', year: 'numeric' });
+          const monthDiv = document.createElement('div');
+          monthDiv.className = 'calendar-month';
+
+          const monthHeader = document.createElement('h3');
+          monthHeader.textContent = monthName;
+          monthDiv.appendChild(monthHeader);
+
+          const daysGrid = document.createElement('div');
+          daysGrid.className = 'days-grid';
+
+          // Days header
+          ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'day-header';
+            dayHeader.textContent = d;
+            daysGrid.appendChild(dayHeader);
+          });
+
+          // Fill blank days before first day of month
+          const firstDayWeekday = new Date(monthStart.getFullYear(), monthStart.getMonth(), 1).getDay();
+          for(let i=0; i<firstDayWeekday; i++){
+            const blank = document.createElement('div');
+            blank.className = 'day blank';
+            daysGrid.appendChild(blank);
+          }
+
+          // Days of the month
+          const daysInMonth = new Date(monthStart.getFullYear(), monthStart.getMonth()+1, 0).getDate();
+          for(let day=1; day<=daysInMonth; day++){
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'day';
+            const dayDate = new Date(monthStart.getFullYear(), monthStart.getMonth(), day);
+
+            if(dayDate < start || dayDate > due){
+              dayDiv.classList.add('disabled');
+            } else {
+              // Find entry for this day
+              const entry = entries.find(en => en.date === dayDate.toISOString().slice(0,10));
+              if(entry){
+                dayDiv.classList.add('done');
+                dayDiv.title = `Planned: ${entry.hoursPlanned}h, Done: ${entry.hoursDone}h\nTopic: ${entry.topic}`;
+              }
+              dayDiv.tabIndex = 0;
+              dayDiv.setAttribute('role', 'button');
+              dayDiv.setAttribute('aria-label', `Day ${day} of ${monthName}`);
+              dayDiv.addEventListener('click', () => {
+                alert(`Date: ${dayDate.toLocaleDateString()}\nPlanned Hours: ${entry ? entry.hoursPlanned : 0}\nDone Hours: ${entry ? entry.hoursDone : 0}\nTopic: ${entry ? entry.topic : 'None'}`);
+              });
+              dayDiv.addEventListener('keypress', e => {
+                if(e.key === 'Enter' || e.key === ' ') dayDiv.click();
+              });
+            }
+
+            dayDiv.textContent = day;
+            daysGrid.appendChild(dayDiv);
+          }
+          monthDiv.appendChild(daysGrid);
+          calendarContainer.appendChild(monthDiv);
+        });
+      }
+
+      // DOUBT BANK FUNCTIONS
+      const doubtForm = document.getElementById('doubtForm');
+      const doubtInput = document.getElementById('doubtInput');
+      const doubtList = document.getElementById('doubtList');
+
+      function renderDoubtList(){
+        const doubts = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOUBTS)) || [];
+        doubtList.innerHTML = '';
+        doubts.forEach((doubt, idx) => {
+          const li = document.createElement('li');
+          li.textContent = doubt;
+          li.style.border = '1px solid var(--accent-color)';
+          li.style.marginBottom = '0.5rem';
+          li.style.padding = '0.5rem';
+          li.style.borderRadius = '6px';
+          doubtList.appendChild(li);
+        });
+      }
+
+      doubtForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const doubtText = doubtInput.value.trim();
+        if(!doubtText) return;
+        const doubts = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOUBTS)) || [];
+        doubts.push(doubtText);
+        localStorage.setItem(STORAGE_KEYS.DOUBTS, JSON.stringify(doubts));
+        doubtInput.value = '';
+        renderDoubtList();
+      });
+
+      // MISTAKES LOG FUNCTIONS
+      const mistakesForm = document.getElementById('mistakesForm');
+      const mistakeInput = document.getElementById('mistakeInput');
+      const mistakeList = document.getElementById('mistakeList');
+
+      function renderMistakesList(){
+        const mistakes = JSON.parse(localStorage.getItem(STORAGE_KEYS.MISTAKES)) || [];
+        mistakeList.innerHTML = '';
+        mistakes.forEach((mistake, idx) => {
+          const li = document.createElement('li');
+          li.textContent = mistake;
+          li.style.border = '1px solid var(--mistake-color)';
+          li.style.marginBottom = '0.5rem';
+          li.style.padding = '0.5rem';
+          li.style.borderRadius = '6px';
+          mistakeList.appendChild(li);
+        });
+      }
+
+      mistakesForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const mistakeText = mistakeInput.value.trim();
+        if(!mistakeText) return;
+        const mistakes = JSON.parse(localStorage.getItem(STORAGE_KEYS.MISTAKES)) || [];
+        mistakes.push(mistakeText);
+        localStorage.setItem(STORAGE_KEYS.MISTAKES, JSON.stringify(mistakes));
+        mistakeInput.value = '';
+        renderMistakesList();
+      });
+
+      // TO-DO LIST FUNCTIONS
+      const todoForm = document.getElementById('todoForm');
+      const todoInput = document.getElementById('todoInput');
+      const todoItems = document.getElementById('todoItems');
+
+      function renderTodoList(){
+        const todos = JSON.parse(localStorage.getItem(STORAGE_KEYS.TODO)) || [];
+        todoItems.innerHTML = '';
+        todos.forEach((todo, idx) => {
+          const li = document.createElement('li');
+          li.className = 'todo-item';
+          li.style.border = '1px solid var(--todo-color)';
+          li.style.borderRadius = '6px';
+          li.style.marginBottom = '0.5rem';
+          li.style.padding = '0.5rem';
+          li.style.display = 'flex';
+          li.style.justifyContent = 'space-between';
+          li.style.alignItems = 'center';
+
+          const span = document.createElement('span');
+          span.textContent = todo.text;
+          span.style.flexGrow = '1';
+          if(todo.done){
+            span.style.textDecoration = 'line-through';
+            span.style.color = 'var(--text-muted)';
+          }
+          li.appendChild(span);
+
+          const doneBtn = document.createElement('button');
+          doneBtn.textContent = todo.done ? 'Undo' : 'Done';
+          doneBtn.style.marginRight = '0.5rem';
+          doneBtn.addEventListener('click', () => {
+            todos[idx].done = !todos[idx].done;
+            localStorage.setItem(STORAGE_KEYS.TODO, JSON.stringify(todos));
+            renderTodoList();
+          });
+          li.appendChild(doneBtn);
+
+          const delBtn = document.createElement('button');
+          delBtn.textContent = 'Delete';
+          delBtn.style.background = 'var(--danger-color)';
+          delBtn.style.color = 'white';
+          delBtn.style.border = 'none';
+          delBtn.style.borderRadius = '4px';
+          delBtn.style.padding = '0.2rem 0.5rem';
+          delBtn.addEventListener('click', () => {
+            todos.splice(idx, 1);
+            localStorage.setItem(STORAGE_KEYS.TODO, JSON.stringify(todos));
+            renderTodoList();
+          });
+          li.appendChild(delBtn);
+
+          todoItems.appendChild(li);
+        });
+      }
+
+      todoForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const taskText = todoInput.value.trim();
+        if(!taskText) return;
+        const todos = JSON.parse(localStorage.getItem(STORAGE_KEYS.TODO)) || [];
+        todos.push({ text: taskText, done: false });
+        localStorage.setItem(STORAGE_KEYS.TODO, JSON.stringify(todos));
+        todoInput.value = '';
+        renderTodoList();
+      });
+
+      // On load, show dashboard
+      document.querySelector('.nav-btn[data-target="dashboard"]').click();
+
+    })();
+  </script>
+
+  <style>
+    :root {
+      --bg-light: #f0f4f8;
+      --bg-dark: #121212;
+      --text-light: #222;
+      --text-dark: #eee;
+      --accent-color: #4a90e2;
+      --accent-dark: #357ABD;
+      --mistake-color: #e94e77;
+      --todo-color: #f5a623;
+      --danger-color: #d9534f;
+      --progress-bg: #d0e3fc;
+      --progress-bar: #4a90e2;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0;
+      background: var(--bg-light);
+      color: var(--text-light);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    header {
+      background: var(--accent-color);
+      color: white;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    nav {
+      display: flex;
+      background: var(--accent-dark);
+      padding: 0.5rem 1rem;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    nav button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 1rem;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.25s;
+    }
+
+    nav button:hover, nav button.active {
+      background: var(--progress-bar);
+      color: white;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 1rem auto 3rem;
+      padding: 0 1rem;
+    }
+
+    h2 {
+      margin-top: 0;
+      border-bottom: 2px solid var(--accent-color);
+      padding-bottom: 0.3rem;
+    }
+
+    form {
+      margin-bottom: 1rem;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    input[type="number"],
+    input[type="date"],
+    input[type="text"],
+    textarea {
+      padding: 0.5rem;
+      border: 1px solid #aaa;
+      border-radius: 6px;
+      font-size: 1rem;
+      resize: vertical;
+      background: white;
+      color: black;
+      transition: border-color 0.3s;
+    }
+
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    button[type="submit"], button {
+      background: var(--accent-color);
+      color: white;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+
+    button[type="submit"]:hover, button:hover {
+      background: var(--accent-dark);
+    }
+
+    #progressContainer {
+      background: var(--progress-bg);
+      border-radius: 10px;
+      height: 30px;
+      width: 100%;
+      margin: 1rem 0 2rem;
+      position: relative;
+    }
+
+    #progressBar {
+      background: var(--progress-bar);
+      height: 100%;
+      border-radius: 10px 0 0 10px;
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: width 0.4s ease;
+      user-select: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.4rem 0.6rem;
+      text-align: center;
+    }
+
+    th {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    /* Calendar */
+    .calendar-month {
+      margin-bottom: 2rem;
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+      text-align: center;
+      user-select: none;
+    }
+
+    .day-header {
+      font-weight: 700;
+      background: var(--accent-dark);
+      color: white;
+      padding: 0.2rem 0;
+    }
+
+    .day {
+      background: #e6f0ff;
+      padding: 0.8rem 0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .day:hover, .day:focus {
+      background: var(--accent-color);
+      outline: none;
+      color: white;
+    }
+
+    .day.done {
+      background: #90caf9;
+      color: #0b3d91;
+      font-weight: 700;
+    }
+
+    .day.disabled {
+      background: #f5f5f5;
+      color: #aaa;
+      cursor: default;
+    }
+
+    /* Doubt Bank and Mistakes */
+    #doubtBank, #mistakesLog, #todoList {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    /* Colors for lists */
+    #doubtList li {
+      border-left: 5px solid var(--accent-color);
+      background: #eef5fc;
+    }
+
+    #mistakeList li {
+      border-left: 5px solid var(--mistake-color);
+      background: #fde7ea;
+    }
+
+    .todo-list li {
+      border-left: 5px solid var(--todo-color);
+      background: #fff8e1;
+    }
+
+    /* To-Do buttons */
+    .todo-item button {
+      background: transparent;
+      border: 1px solid var(--accent-color);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .todo-item button:hover {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    /* Dark mode overrides */
+    body.dark #progressContainer {
+      background: #2a3a5a;
+    }
+    body.dark #progressBar {
+      background: #80b0ff;
+      color: #222;
+    }
+    body.dark table th {
+      background: #80b0ff;
+    }
+    body.dark table, body.dark th, body.dark td {
+      border-color: #445577;
+    }
+    body.dark .day-header {
+      background: #2c4a87;
+    }
+    body.dark .day {
+      background: #254073;
+      color: #a0b8ff;
+    }
+    body.dark .day.done {
+      background: #4a90e2;
+      color: #e0eaff;
+    }
+    body.dark .day.disabled {
+      background: #1e2a42;
+      color: #466;
+    }
+    body.dark #doubtList li {
+      background: #193a75;
+      border-left-color: #80b0ff;
+      color: #cce0ff;
+    }
+    body.dark #mistakeList li {
+      background: #7a2630;
+      border-left-color: #e57385;
+      color: #ffccd4;
+    }
+    body.dark .todo-list li {
+      background: #574312;
+      border-left-color: #ffcb46;
+      color: #ffecb3;
+    }
+  </style>
+
+</body>
+</html>
